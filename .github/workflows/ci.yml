@@ -10,7 +10,7 @@ permissions:
   contents: read
  
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
  
     steps:
@@ -42,3 +42,19 @@ jobs:
         run: |
           docker build -t $REGISTRY/hello-app-frontend:$IMAGE_TAG ./frontend
           docker push $REGISTRY/hello-app-frontend:$IMAGE_TAG
+ 
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/hello-app
+ 
+            export IMAGE_TAG=${{ github.sha }}
+ 
+            docker compose pull
+            docker compose up -d
+ 
+            docker image prune -f
