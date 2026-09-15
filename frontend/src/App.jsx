@@ -5,7 +5,8 @@ function App() {
  
   const callApi = async () => {
     try {
-      const response = await fetch("http://localhost:8000/hello");
+      // const response = await fetch("http://localhost:8000/hello");
+      const response = await fetch("http://<EC2_PUBLIC_IP>:8000/hello");
       const data = await response.json();
  
       setResult(data);

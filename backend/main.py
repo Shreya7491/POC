@@ -1,21 +1,3 @@
-# from fastapi import FastAPI
-# from fastapi.middleware.cors import CORSMiddleware
- 
-# app = FastAPI()
- 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:5173"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
- 
- 
-# @app.get("/hello")
-# def hello():
-#     return {"message": "Hello!"}
-
 from datetime import datetime, timezone
  
 from fastapi import FastAPI
@@ -26,7 +8,10 @@ app = FastAPI()
  
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://<EC2_PUBLIC_IP>:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,7 +19,7 @@ app.add_middleware(
  
 mongo_client = MongoClient("mongodb://mongodb:27017")
  
-db = mongo_client["POC"]
+db = mongo_client["hello-app"]
 calls_collection = db["api_calls"]
  
  
