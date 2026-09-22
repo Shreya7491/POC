@@ -41,16 +41,21 @@ def health():
         return {"status": "degraded"}
 
 
+def build_greeting() -> str:"
+    return f"Good Day! 👋 Great to hear from you."
+
+
 @app.get("/hello")
 def hello():
     called_at = datetime.now(timezone.utc)
+    message = build_greeting()
 
     calls_collection.insert_one({
-        "message": "Hello!",
+        "message": message,
         "called_at": called_at,
     })
 
     return {
-        "message": "Hello!",
+        "message": message,
         "called_at": called_at,
     }
