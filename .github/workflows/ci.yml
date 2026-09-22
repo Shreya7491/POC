@@ -1,60 +1,31 @@
-name: CI/CD
- 
+name: Hello App CI/CD
+defaults:
+  run:
+    shell: bash
 on:
   push:
     branches:
       - master
- 
+  workflow_dispatch:
+
 permissions:
-  id-token: write
   contents: read
- 
+
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
- 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
- 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::YOUR_AWS_ACCOUNT_ID:role/GitHubActionsHelloAppRole
-          aws-region: ap-south-1
- 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
- 
-      - name: Build and push backend
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $REGISTRY/hello-app-backend:$IMAGE_TAG ./backend
-          docker push $REGISTRY/hello-app-backend:$IMAGE_TAG
- 
-      - name: Build and push frontend
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $REGISTRY/hello-app-frontend:$IMAGE_TAG ./frontend
-          docker push $REGISTRY/hello-app-frontend:$IMAGE_TAG
- 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/hello-app
- 
-            export IMAGE_TAG=${{ github.sha }}
- 
-            docker compose pull
-            docker compose up -d
- 
-            docker image prune -f
+  deploy:
+    name: Deploy to EC2
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      commit_id: ${{ github.sha }}
+    secrets:
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+      EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
+      MONGO_ROOT_USER: ${{ secrets.MONGO_ROOT_USER }}
+      MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+      MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+      CORS_ORIGINS: ${{ secrets.CORS_ORIGINS }}
+
+

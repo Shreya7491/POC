@@ -1,23 +1,35 @@
 services:
- 
+
   frontend:
-    image: ${ECR_REGISTRY}/hello-app-frontend:${IMAGE_TAG}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
       - "5173:5173"
+    environment:
+      VITE_BACKEND_URL: http://backend:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
- 
+
   backend:
-    image: ${ECR_REGISTRY}/hello-app-backend:${IMAGE_TAG}
+    build:
+      context: ./backend
     ports:
       - "8000:8000"
+    environment:
+      MONGO_URI: mongodb://mongodb:27017
+      MONGO_DB_NAME: hello-app
+      CORS_ORIGINS: http://localhost:5173
     depends_on:
       - mongodb
- 
+
   mongodb:
     image: mongo:7
     volumes:
       - mongo_data:/data/db
- 
+
 volumes:
   mongo_data:

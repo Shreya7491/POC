@@ -5,8 +5,8 @@ function App() {
  
   const callApi = async () => {
     try {
-      // const response = await fetch("http://localhost:8000/hello");
-      const response = await fetch("http://<EC2_PUBLIC_IP>:8000/hello");
+      // Relative path: proxied to the backend by Vite (dev) or nginx (prod).
+      const response = await fetch("/api/hello");
       const data = await response.json();
  
       setResult(data);
